@@ -13,9 +13,37 @@ from .managers import CustomUserManager
 from django.contrib.auth.models import PermissionsMixin
 
 
-class CustomUser(AbstractUser):
-    username = None
+# class UserType(models.Model):
+#     CUSTOMER = 1
+#     SELLER = 2
+#     TYPE_CHOICES = (
+#         (SELLER, 'Seller'),
+#         (CUSTOMER, 'Customer')
+#     )
+
+#     id = models.PositiveIntegerField(choices=TYPE_CHOICES, primary_key=True)
+
+#     def __str__(self):
+#         return self.get_id_display()
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(default=timezone.now)
+
+    # WITH HELP OF BOOLEAN FIELD
+    is_customer = models.BooleanField(default=True)
+    is_seller = models.BooleanField(default=False)
+
+    # WITH THE HELP OF CHOICES FIELD
+    # type = (
+    #     (1, 'SELLER'),
+    #     (2, 'Customer')
+    # )
+    # user_type = models.IntegerField(choices=type, default=1)
+
+    # usertype = models.ManyToManyField(UserType)    
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -25,6 +53,33 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.email
 
+class Customer(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    address = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.user.email
+
+
+class Seller(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    gst = models.CharField(max_length=10)
+    warehouse_location = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.user.email
+
+# class CustomUser(AbstractUser):
+#     username = None
+#     email = models.EmailField(_('email address'), unique=True)
+
+#     USERNAME_FIELD = 'email'
+#     REQUIRED_FIELDS = []
+
+#     objects = CustomUserManager()
+
+#     def __str__(self):
+#         return self.email
 
 # Create your models here.
 class Product(models.Model):
@@ -57,7 +112,7 @@ class CartManager(models.Manager):
 
 class Cart(models.Model):
     cart_id = models.AutoField(primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     created_on = models.DateTimeField(default=timezone.now)
 
     objects = CartManager()
@@ -76,9 +131,9 @@ class Order(models.Model):
         (2, 'Ready For Shipment'),
         (3, 'Shipped'),
         (4, 'Delivered'))
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     status = models.IntegerField(choices=status_choices, default=1)  
 
 class Deal(models.Model):
-    user = models.ManyToManyField(User)
+    user = models.ManyToManyField(CustomUser)
     deal_name = models.CharField(max_length=255)
