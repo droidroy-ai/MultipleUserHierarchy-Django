@@ -33,8 +33,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
 
     # WITH HELP OF BOOLEAN FIELD
-    is_customer = models.BooleanField(default=True)
-    is_seller = models.BooleanField(default=False)
+    # is_customer = models.BooleanField(default=True)
+    # is_seller = models.BooleanField(default=False)
 
     # WITH THE HELP OF CHOICES FIELD
     # type = (
@@ -45,6 +45,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     # usertype = models.ManyToManyField(UserType)    
 
+    class Types(models.TextChoices):
+        SELLER = "Seller", "SELLER"
+        CUSTOMER = "Customer", "CUSTOMER"
+
+
+    default_type = Types.CUSTOMER
+
+    type = models.CharField(_('Type'), max_length=255, choices=Types.choices, default=default_type)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
@@ -53,21 +62,28 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-class Customer(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    address = models.CharField(max_length=500)
+    # if the code is not below then accessing default values in User model not in proxy models
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.type = self.default_type
+        return super().save(*args, **kwargs)
 
-    def __str__(self):
-        return self.user.email
+# class Customer(models.Model):
+#     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+#     address = models.CharField(max_length=500)
+
+#     def __str__(self):
+#         return self.user.email
 
 
-class Seller(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    gst = models.CharField(max_length=10)
-    warehouse_location = models.CharField(max_length=500)
+# class Seller(models.Model):
+#     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+#     gst = models.CharField(max_length=10)
+#     warehouse_location = models.CharField(max_length=500)
 
-    def __str__(self):
-        return self.user.email
+#     def __str__(self):
+#         return self.user.email
+
 
 # class CustomUser(AbstractUser):
 #     username = None
@@ -81,7 +97,61 @@ class Seller(models.Model):
 #     def __str__(self):
 #         return self.email
 
-# Create your models here.
+
+class CustomerAdditional(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    address = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.user.email
+
+
+class SellerAdditional(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    gst = models.CharField(max_length=10)
+    warehouse_location = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.user.email
+
+
+# Created custom query_set // Model managers for the proxy models
+class SellerManager(models.Manager):
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(type = CustomUser.Types.SELLER)
+
+class CustomerManager(models.Manager):
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(type = CustomUser.Types.CUSTOMER)
+
+
+# Proxy Models ::: They do not create a seperate table
+class Seller(CustomUser):
+    default_type = CustomUser.Types.SELLER
+    objects = SellerManager()
+    class Meta:
+        proxy = True
+    
+    def sell(self):
+        print("I can sell")
+    
+    @property
+    def showAdditional(self):
+        return self.selleradditional
+
+class Customer(CustomUser):
+    default_type = CustomUser.Types.CUSTOMER
+    objects = CustomerManager()
+    class Meta:
+        proxy = True
+    
+    def buy(self):
+        print("I can buy")
+    
+    @property
+    def showAdditional(self):
+        return self.customeradditional
+
 class Product(models.Model):
     product_id = models.AutoField(primary_key=True)
     product_name = models.CharField(max_length=255)
