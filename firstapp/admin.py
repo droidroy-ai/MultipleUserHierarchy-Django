@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
 
-from .models import Cart, Product, ProductInCart, Order, Deal, Customer, Seller #UserType
+from .models import Cart, Product, ProductInCart, Order, Deal, Customer, Seller, Contact #UserType
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser
@@ -119,4 +119,5 @@ admin.site.register(Order)
 admin.site.register(Deal, DealAdmin)
 admin.site.register(Customer)
 admin.site.register(Seller)
+admin.site.register(Contact)
 #admin.site.register(UserType)

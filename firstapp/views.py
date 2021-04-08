@@ -44,6 +44,7 @@ def contactus2(request):
             if len(form.cleaned_data.get('query')) > 10:
                 form.add_error('query', "Query length is not right")
                 return render(request, 'firstapp/contactus2.html', {'form':form})
+            form.save()
             return HttpResponse("Thank you. We will get back to you. ")
         else:
             if len(form.cleaned_data.get('query')) > 10:

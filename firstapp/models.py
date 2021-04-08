@@ -152,6 +152,17 @@ class Customer(CustomUser):
     def showAdditional(self):
         return self.customeradditional
 
+
+class Contact(models.Model):
+    email = models.EmailField()
+    name = models.CharField(max_length=20)
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{14}$', message="the format : '+919163862585'. Upto 14 digits allowed.")
+    phone = models.CharField(max_length=255, validators=[phone_regex])
+    query = models.TextField()
+
+    def __str__(self):
+        return self.name
+
 class Product(models.Model):
     product_id = models.AutoField(primary_key=True)
     product_name = models.CharField(max_length=255)

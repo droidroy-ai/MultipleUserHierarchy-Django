@@ -8,7 +8,24 @@
 <div class="container">
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        <!-- {{ form.as_p }} -->
+        {{ form.non_field_errors }}
+        <label for="id_email" class="">Email Address*</label>
+        {{ form.email.errors }}
+        {{ form.email }}
+        
+        <label for="id_name" class="login-labels">Name* </label>
+        {{ form.name.errors }}
+        {{ form.name }}
+
+        <label for="id_phone" class="login-labels">Phone No.* </label>
+        {{ form.phone.errors }}
+        {{ form.phone }}
+
+        <label for="id_query" class="login-labels">Query* </label>
+        {{ form.query.errors }}
+        {{ form.query }}
+
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
