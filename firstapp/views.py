@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView
 from django.core.exceptions import ValidationError
+from django.urls import reverse_lazy
 
 from .forms import ContactUsForm
 # Create your views here.
@@ -37,10 +38,10 @@ def contactUs(request):
     return render(request, 'firstapp/contactus.html')
 
 
-def contactus2(request):
+def contactus2(request):                #contact us function based view
     if request.method == 'POST':
         form = ContactUsForm(request.POST)
-        if form.is_valid():            # when this gets executed it executes something called cleaned_data
+        if form.is_valid():            # when this gets executed it executes cleaned_data
             if len(form.cleaned_data.get('query')) > 10:
                 form.add_error('query', "Query length is not right")
                 return render(request, 'firstapp/contactus2.html', {'form':form})
@@ -53,3 +54,31 @@ def contactus2(request):
             return render(request, 'firstapp/contactus2.html', {'form':form})
 
     return render(request, 'firstapp/contactus2.html', {'form':ContactUsForm})
+
+class ContactUs(FormView):          # contact us class based view
+    form_class = ContactUsForm
+    template_name = 'firstapp/contactus2.html'
+    success_url = reverse_lazy("firstapp:index")
+
+    def form_valid(self, form):
+        """
+        If the form is valid, redirect to the supplied URL.
+        """
+
+        if len(form.cleaned_data.get('query')) > 10:
+            form.add_error('query', "Query length is not right")
+            return render(self.request, 'firstapp/contactus2.html', {'form':form})
+        form.save()
+        response = super().form_valid(form)
+        return response
+    
+    def form_invalid(self, form):
+        """
+        If the form is invalid, render the invalid form.
+        """
+        if len(form.cleaned_data.get('query')) > 10:
+            form.add_error('query', "Query length is not right")
+            #form.errors['query'] = ['Query length should be under 10']
+        response = super().form_invalid(form)
+        return response
+
