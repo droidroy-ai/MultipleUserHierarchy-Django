@@ -1,9 +1,10 @@
 from django.db import models
 
 from django.core.validators import RegexValidator
-
 from django.utils import timezone
 from django.contrib.auth.models import User
+
+from multiselectfield import MultiSelectField
 
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
@@ -12,6 +13,7 @@ from .managers import CustomUserManager
 
 from django.contrib.auth.models import PermissionsMixin
 
+from django.db.models import Q
 
 # class UserType(models.Model):
 #     CUSTOMER = 1
@@ -28,6 +30,7 @@ from django.contrib.auth.models import PermissionsMixin
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
+    name = models.CharField(max_length=255, default="")
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -52,7 +55,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     default_type = Types.CUSTOMER
 
-    type = models.CharField(_('Type'), max_length=255, choices=Types.choices, default=default_type)
+    #type = models.CharField(_('Type'), max_length=255, choices=Types.choices, default=default_type)
+    type = MultiSelectField(choices=Types.choices, default=[], null=True, blank=True)
+
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -65,8 +70,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     # if the code is not below then accessing default values in User model not in proxy models
     def save(self, *args, **kwargs):
         if not self.id:
-            self.type = self.default_type
+            #self.type = self.default_type
+            self.type.append(self.default_type)
         return super().save(*args, **kwargs)
+
 
 # class Customer(models.Model):
 #     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
@@ -118,11 +125,13 @@ class SellerAdditional(models.Model):
 # Created custom query_set // Model managers for the proxy models
 class SellerManager(models.Manager):
     def get_queryset(self, *args, **kwargs):
-        return super().get_queryset(*args, **kwargs).filter(type = CustomUser.Types.SELLER)
+        #return super().get_queryset(*args, **kwargs).filter(type = CustomUser.Types.SELLER)
+        return super().get_queryset(*args, **kwargs).filter(Q(type__contains = CustomUser.Types.SELLER))
 
 class CustomerManager(models.Manager):
     def get_queryset(self, *args, **kwargs):
-        return super().get_queryset(*args, **kwargs).filter(type = CustomUser.Types.CUSTOMER)
+        #return super().get_queryset(*args, **kwargs).filter(type = CustomUser.Types.CUSTOMER)
+        return super().get_queryset(*args, **kwargs).filter(Q(type__contains = CustomUser.Types.CUSTOMER))
 
 
 # Proxy Models ::: They do not create a seperate table

@@ -1,9 +1,10 @@
 from django.shortcuts import render, HttpResponse
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView, FormView, CreateView
 from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy
 
-from .forms import ContactUsForm
+from .forms import ContactUsForm, RegistrationForm
+from .models import SellerAdditional, CustomUser
 # Create your views here.
 
 
@@ -81,4 +82,21 @@ class ContactUs(FormView):          # contact us class based view
             #form.errors['query'] = ['Query length should be under 10']
         response = super().form_invalid(form)
         return response
+
+
+class RegisterView(CreateView):
+    template_name = 'firstapp/register.html'
+    form_class = RegistrationForm
+    success_url = reverse_lazy('firstapp:index')
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 302:
+            gst = request.POST.get('gst')
+            warehouse_location = request.POST.get('warehouse_location')
+            user = CustomUser.objects.get(email=request.POST.get('email'))
+            sell_a = SellerAdditional.objects.create(user=user, gst=gst, warehouse_location=warehouse_location)
+            return response
+        else:
+            return response
 
