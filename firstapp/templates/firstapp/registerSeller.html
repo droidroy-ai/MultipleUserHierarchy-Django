@@ -60,19 +60,6 @@
             <h2 class="mainheading">Roy's Apothecary</h2>
             <h4 class="mainheading">Sign Up For Seller</h4>
             <p class="errorlist">{{ form.non_field_errors }}</p>
-            <label for="id_email" class="login-labels">Email Address*</label>
-            {{ form.email.errors }}
-            {{ form.email|addClass:'form-control'|addPlaceholder:'Email Address'}}
-
-            <label for="id_name" class="login-labels">Name*</label>
-            {{ form.name.errors }}
-            {{ form.name|addClass:'form-control'|addPlaceholder:'Your Name' }}
-            <label for="id_password1" class="login-labels">Password*</label>
-            {{ form.password1.errors }}
-            {{ form.password1|addClass:'form-control'|addPlaceholder:'Your Password' }}
-            <label for="id_password2" class="login-labels">Password Confirmation*</label>
-            {{ form.password2.errors }}
-            {{ form.password2|addClass:'form-control'|addPlaceholder:'Your Password' }}
             <label for="id_gst" class="login-labels">GST Info*</label>
             {{ form.gst.errors }}
             {{ form.gst|addClass:'form-control'|addPlaceholder:'Your GST no.' }}

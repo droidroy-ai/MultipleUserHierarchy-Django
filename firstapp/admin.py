@@ -32,8 +32,6 @@ class CustomUserAdmin(UserAdmin):
     search_fields = ('email',)
     ordering = ('email',)
 
-#admin.site.unregister(User)
-#dmin.site.register(User, UserAdmin)
 
 
 class SellerAdmin(admin.ModelAdmin):
@@ -88,6 +86,8 @@ class DealInLine(admin.TabularInline):
 #     search_fields = ('username',)       #search_filter for search bar
 #     ordering = ('username',)
 
+#admin.site.unregister(User)
+#dmin.site.register(User, UserAdmin)
 
 #registering models through class with decorators
 @admin.register(Cart) #through register decorator

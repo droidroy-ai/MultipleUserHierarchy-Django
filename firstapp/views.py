@@ -1,11 +1,13 @@
 from django.shortcuts import render, HttpResponse
 from django.views.generic import TemplateView, FormView, CreateView
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy
 
-from .forms import ContactUsForm, RegistrationForm
+from .forms import ContactUsForm, RegistrationFormBasic, RegistrationFormSeller
 from .models import SellerAdditional, CustomUser
-# Create your views here.
 
 
 # def index(request):           // just a test function view
@@ -84,19 +86,44 @@ class ContactUs(FormView):          # contact us class based view
         return response
 
 
-class RegisterView(CreateView):
-    template_name = 'firstapp/register.html'
-    form_class = RegistrationForm
+# class RegisterViewSeller(CreateView):
+#     template_name = 'firstapp/register.html'
+#     form_class = RegistrationForm
+#     success_url = reverse_lazy('firstapp:index')
+
+#     def post(self, request, *args, **kwargs):
+#         response = super().post(request, *args, **kwargs)
+#         if response.status_code == 302:
+#             gst = request.POST.get('gst')
+#             warehouse_location = request.POST.get('warehouse_location')
+#             user = CustomUser.objects.get(email=request.POST.get('email'))
+#             sell_a = SellerAdditional.objects.create(user=user, gst=gst, warehouse_location=warehouse_location)
+#             return response
+#         else:
+#             return response
+
+
+class RegisterViewBasic(CreateView):
+    template_name = 'firstapp/registerBasic.html'
+    form_class = RegistrationFormBasic
     success_url = reverse_lazy('firstapp:index')
 
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        if response.status_code == 302:
-            gst = request.POST.get('gst')
-            warehouse_location = request.POST.get('warehouse_location')
-            user = CustomUser.objects.get(email=request.POST.get('email'))
-            sell_a = SellerAdditional.objects.create(user=user, gst=gst, warehouse_location=warehouse_location)
-            return response
-        else:
-            return response
+class LoginViewUser(LoginView):
+    template_name = 'firstapp/login.html'
 
+
+class RegisterViewSeller(LoginRequiredMixin, CreateView):
+    template_name = 'firstapp/registerSeller.html'
+    form_class = RegistrationFormSeller
+    success_url = reverse_lazy('firstapp:index')
+
+    def form_valid(self, form):
+        user = self.request.user
+        user.type.append(user.Types.SELLER)
+        user.save()
+
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+class LogoutViewUser(LogoutView):
+    template_name = reverse_lazy("firstapp:index")

@@ -58,7 +58,7 @@
         <div class="register-form">
 
             <h2 class="mainheading">Roy's Apothecary</h2>
-            <h4 class="mainheading">Sign Up For Seller</h4>
+            <h4 class="mainheading">Sign Up</h4>
             <p class="errorlist">{{ form.non_field_errors }}</p>
             <label for="id_email" class="login-labels">Email Address*</label>
             {{ form.email.errors }}
@@ -73,12 +73,6 @@
             <label for="id_password2" class="login-labels">Password Confirmation*</label>
             {{ form.password2.errors }}
             {{ form.password2|addClass:'form-control'|addPlaceholder:'Your Password' }}
-            <label for="id_gst" class="login-labels">GST Info*</label>
-            {{ form.gst.errors }}
-            {{ form.gst|addClass:'form-control'|addPlaceholder:'Your GST no.' }}
-            <label for="id_warehouse_location" class="login-labels">Warehouse Location*</label>
-            {{ form.warehouse_location.errors }}
-            {{ form.warehouse_location|addClass:'form-control'|addPlaceholder:'Warehouse Location' }}
             <br>
             <div class="text-center">
                 <button type="submit" class="btn btn-primary btn-lg signup-button">Signup</button>
@@ -86,4 +80,5 @@
         </div>
     </div>
 </form>
+
 {% endblock %}

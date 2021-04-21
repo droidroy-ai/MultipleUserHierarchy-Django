@@ -15,18 +15,6 @@ from django.contrib.auth.models import PermissionsMixin
 
 from django.db.models import Q
 
-# class UserType(models.Model):
-#     CUSTOMER = 1
-#     SELLER = 2
-#     TYPE_CHOICES = (
-#         (SELLER, 'Seller'),
-#         (CUSTOMER, 'Customer')
-#     )
-
-#     id = models.PositiveIntegerField(choices=TYPE_CHOICES, primary_key=True)
-
-#     def __str__(self):
-#         return self.get_id_display()
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
@@ -39,7 +27,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     # is_customer = models.BooleanField(default=True)
     # is_seller = models.BooleanField(default=False)
 
-    # WITH THE HELP OF CHOICES FIELD
     # type = (
     #     (1, 'SELLER'),
     #     (2, 'Customer')
@@ -75,36 +62,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return super().save(*args, **kwargs)
 
 
-# class Customer(models.Model):
-#     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-#     address = models.CharField(max_length=500)
-
-#     def __str__(self):
-#         return self.user.email
-
-
-# class Seller(models.Model):
-#     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-#     gst = models.CharField(max_length=10)
-#     warehouse_location = models.CharField(max_length=500)
-
-#     def __str__(self):
-#         return self.user.email
-
-
-# class CustomUser(AbstractUser):
-#     username = None
-#     email = models.EmailField(_('email address'), unique=True)
-
-#     USERNAME_FIELD = 'email'
-#     REQUIRED_FIELDS = []
-
-#     objects = CustomUserManager()
-
-#     def __str__(self):
-#         return self.email
-
-
 class CustomerAdditional(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     address = models.CharField(max_length=500)
@@ -138,6 +95,7 @@ class CustomerManager(models.Manager):
 class Seller(CustomUser):
     default_type = CustomUser.Types.SELLER
     objects = SellerManager()
+
     class Meta:
         proxy = True
     
@@ -227,3 +185,48 @@ class Order(models.Model):
 class Deal(models.Model):
     user = models.ManyToManyField(CustomUser)
     deal_name = models.CharField(max_length=255)
+
+
+
+
+# Old code : Not satisfied
+# class UserType(models.Model):
+#     CUSTOMER = 1
+#     SELLER = 2
+#     TYPE_CHOICES = (
+#         (SELLER, 'Seller'),
+#         (CUSTOMER, 'Customer')
+#     )
+
+#     id = models.PositiveIntegerField(choices=TYPE_CHOICES, primary_key=True)
+
+#     def __str__(self):
+#         return self.get_id_display()
+# class Customer(models.Model):
+#     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+#     address = models.CharField(max_length=500)
+
+#     def __str__(self):
+#         return self.user.email
+
+
+# class Seller(models.Model):
+#     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+#     gst = models.CharField(max_length=10)
+#     warehouse_location = models.CharField(max_length=500)
+
+#     def __str__(self):
+#         return self.user.email
+
+
+# class CustomUser(AbstractUser):
+#     username = None
+#     email = models.EmailField(_('email address'), unique=True)
+
+#     USERNAME_FIELD = 'email'
+#     REQUIRED_FIELDS = []
+
+#     objects = CustomUserManager()
+
+#     def __str__(self):
+#         return self.email
